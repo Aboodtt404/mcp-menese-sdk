@@ -2,20 +2,30 @@
 
 MCP server for the Menese SDK — 19-chain DeFi gateway for AI assistants.
 
+Send, swap, stake, lend, and automate across 19 blockchains from any MCP-compatible AI tool. Non-custodial — your keys never leave your machine.
+
 ## Install
 
 ```bash
-claude mcp add menese -- npx @menese/mcp-server
+npx @menese_protocol/mcp-server
 ```
 
-Or add to your MCP config (`claude_desktop_config.json`, `.cursor/mcp.json`, etc.):
+### Claude Code
+
+```bash
+claude mcp add menese -- npx @menese_protocol/mcp-server
+```
+
+### Claude Desktop / Cursor
+
+Add to your MCP config:
 
 ```json
 {
   "mcpServers": {
     "menese": {
       "command": "npx",
-      "args": ["-y", "@menese/mcp-server"]
+      "args": ["-y", "@menese_protocol/mcp-server"]
     }
   }
 }
@@ -23,7 +33,23 @@ Or add to your MCP config (`claude_desktop_config.json`, `.cursor/mcp.json`, etc
 
 ## Tools
 
-`menese_setup` · `menese_portfolio` · `menese_balance` · `menese_prices` · `menese_quote` · `menese_send` · `menese_swap` · `menese_stake` · `menese_lend` · `menese_strategy` · `menese_jobs`
+| Tool | Description |
+|------|-------------|
+| `menese_setup` | Create or import wallet identity |
+| `menese_portfolio` | Full multi-chain portfolio |
+| `menese_balance` | Single chain balance |
+| `menese_prices` | Token USD prices |
+| `menese_quote` | Swap quotes, addresses, balance queries |
+| `menese_send` | Send tokens (19 chains) |
+| `menese_swap` | DEX swaps |
+| `menese_stake` | Lido staking (EVM) |
+| `menese_lend` | Aave V3 supply/withdraw (EVM) |
+| `menese_strategy` | DCA / Take Profit / Stop Loss |
+| `menese_jobs` | On-chain agent job scheduling |
+
+## Supported Chains
+
+Ethereum · Polygon · Arbitrum · Base · Optimism · BNB · Solana · Bitcoin · Litecoin · ICP · SUI · TON · XRP · Cardano · Tron · Aptos · NEAR · CloakCoin · Thorchain
 
 ## License
 
