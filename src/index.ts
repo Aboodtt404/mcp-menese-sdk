@@ -3,28 +3,8 @@
 /**
  * Menese SDK MCP Server — 19-chain DeFi gateway.
  *
- * Exposes 11 tools for multi-chain wallet operations:
- * - menese_setup: Create or import wallet identity
- * - menese_portfolio: Full multi-chain portfolio
- * - menese_balance: Single chain balance
- * - menese_prices: Token USD prices (CoinGecko)
- * - menese_quote: Swap quotes, addresses, balance queries
- * - menese_send: Send tokens (19 chains)
- * - menese_swap: DEX swaps (EVM/Solana/ICP/SUI/Cardano/XRP)
- * - menese_stake: Lido staking (EVM)
- * - menese_lend: Aave V3 supply/withdraw (EVM)
- * - menese_strategy: DCA/Take Profit/Stop Loss rules
- * - menese_jobs: On-chain agent job scheduling
- *
- * Transport: stdio (for Claude Code, Claude Desktop, Cursor, etc.)
- *
- * Environment variables:
- *   MENESE_SEED               — 64-char hex Ed25519 seed (optional, overrides file store)
- *   MENESE_SDK_CANISTER_ID    — SDK canister (default: production)
- *   MENESE_AGENT_CANISTER_ID  — Agent canister for job scheduling
- *   MENESE_RELAY_URL          — VPS relay endpoint
- *   MENESE_DEVELOPER_KEY      — API key for relay
- *   MENESE_TEST_MODE          — Use test SDK canister ("true" to enable)
+ * Exposes 11 tools, 3 resources, and 4 prompts for multi-chain wallet operations
+ * via the Model Context Protocol (stdio transport).
  */
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
@@ -47,6 +27,34 @@ import { registerLendTool } from "./tools/lend.js";
 import { registerStrategyTool } from "./tools/strategy.js";
 import { registerJobsTool } from "./tools/jobs.js";
 
+// Resources & Prompts
+import { registerWalletResources } from "./resources/wallet.js";
+import { registerDeFiPrompts } from "./prompts/defi.js";
+
+const MENESE_INSTRUCTIONS = `You have menese_* tools for multi-chain crypto operations across 19 blockchains.
+
+**Read operations** (no wallet needed for prices):
+- menese_portfolio — full portfolio across all chains
+- menese_balance — balance for a specific chain
+- menese_prices — token USD prices via CoinGecko
+- menese_quote — check balances, addresses, or get swap quotes
+
+**Write operations** (wallet required — use menese_setup first):
+- menese_send — send tokens (use mode "quote" first, then "execute" after user confirms)
+- menese_swap — DEX swaps (use mode "quote" first, then "execute" after user confirms)
+- menese_stake — Lido staking on EVM chains
+- menese_lend — Aave V3 supply/withdraw on EVM chains
+
+**Automation:**
+- menese_strategy — DCA, Take Profit, Stop Loss rules
+- menese_jobs — on-chain scheduled jobs (requires agent canister)
+
+**Rules:**
+- If no wallet is set up, tell the user to use menese_setup
+- For write operations: always quote first, show the user details, then execute after confirmation
+- Supported chains: ethereum, polygon, arbitrum, base, optimism, bnb, solana, bitcoin, litecoin, icp, sui, ton, xrp, cardano, tron, aptos, near, cloakcoin, thorchain
+- Caching: prices 60s, balances 30s, addresses permanent. Write ops auto-invalidate caches.`;
+
 async function main() {
   const config = loadConfig();
 
@@ -60,10 +68,10 @@ async function main() {
     store.setAgentCanisterId(config.agentCanisterId);
   }
 
-  const server = new McpServer({
-    name: "menese-sdk",
-    version: "1.0.0",
-  });
+  const server = new McpServer(
+    { name: "menese-sdk", version: "1.0.0" },
+    { instructions: MENESE_INSTRUCTIONS },
+  );
 
   // Register all 11 tools
   registerSetupTool(server, store, config);
@@ -77,6 +85,12 @@ async function main() {
   registerLendTool(server, store, config);
   registerStrategyTool(server, store, config);
   registerJobsTool(server, store);
+
+  // Register resources (wallet status, addresses, chain balances)
+  registerWalletResources(server, store, config);
+
+  // Register prompts (portfolio-review, swap-tokens, setup-dca, security-check)
+  registerDeFiPrompts(server);
 
   // Connect via stdio transport
   const transport = new StdioServerTransport();

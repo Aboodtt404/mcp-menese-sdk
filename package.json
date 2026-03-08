@@ -6,11 +6,18 @@
   "bin": {
     "menese-mcp": "./build/index.js"
   },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Aboodtt404/mcp-menese-sdk.git"
+  },
+  "keywords": ["mcp", "defi", "crypto", "wallet", "multi-chain", "menese", "icp"],
   "scripts": {
     "build": "tsc",
-    "start": "node build/index.js"
+    "start": "node build/index.js",
+    "prepublishOnly": "npm run build"
   },
-  "files": ["build"],
+  "files": ["build", "LICENSE", "README.md"],
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.1",
     "zod": "^3.24.4",

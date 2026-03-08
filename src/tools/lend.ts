@@ -9,6 +9,7 @@ import type { IdentityStore } from "../store.js";
 import { stakeOrLend } from "../sdk/ic-client.js";
 import { EVM_CHAINS } from "../sdk/chains.js";
 import { bigIntReplacer, invalidateBalanceCaches } from "./helpers.js";
+import { checkGuard } from "../guards/transaction-guard.js";
 
 export function registerLendTool(
   server: McpServer,
@@ -25,12 +26,28 @@ export function registerLendTool(
         action: z.enum(["supply", "withdraw"]).describe("Supply or withdraw"),
         asset: z.string().describe("Asset to supply/withdraw (e.g. 'ETH', 'USDC')"),
         amount: z.string().describe("Amount (decimal)"),
+        mode: z.enum(["quote", "execute"]).optional()
+          .describe("'quote' to preview, 'execute' to act. Default: execute"),
       },
     },
-    async ({ chain, action, asset, amount }) => {
+    async ({ chain, action, asset, amount, mode }) => {
       const identity = store.get();
       if (!identity) {
         return { content: [{ type: "text" as const, text: "No wallet configured. Use menese_setup first." }], isError: true };
+      }
+
+      const guard = checkGuard("menese_lend", { chain, action, asset, amount, mode }, config);
+      if (!guard.allowed) {
+        return { content: [{ type: "text" as const, text: guard.reason! }], isError: true };
+      }
+
+      if (mode === "quote") {
+        return {
+          content: [{
+            type: "text" as const,
+            text: `Ready to ${action} ${amount} ${asset} on Aave V3 (${chain}). Call again with mode "execute" to confirm.`,
+          }],
+        };
       }
 
       const result = await stakeOrLend(config, identity.seed, {
