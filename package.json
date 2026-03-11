@@ -1,6 +1,6 @@
 {
   "name": "@menese_protocol/mcp-server",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "MCP server for Menese SDK — 19-chain DeFi gateway",
   "type": "module",
   "bin": {
@@ -11,13 +11,26 @@
     "type": "git",
     "url": "https://github.com/Aboodtt404/mcp-menese-sdk.git"
   },
-  "keywords": ["mcp", "defi", "crypto", "wallet", "multi-chain", "menese", "icp"],
+  "keywords": [
+    "mcp",
+    "defi",
+    "crypto",
+    "wallet",
+    "multi-chain",
+    "menese",
+    "icp"
+  ],
   "scripts": {
     "build": "tsc",
     "start": "node build/index.js",
     "prepublishOnly": "npm run build"
   },
-  "files": ["build", "LICENSE", "README.md", "smithery.yaml"],
+  "files": [
+    "build",
+    "LICENSE",
+    "README.md",
+    "smithery.yaml"
+  ],
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.1",
     "zod": "^3.24.4",
