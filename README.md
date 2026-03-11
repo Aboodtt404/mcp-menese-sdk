@@ -4,6 +4,10 @@ MCP server for the Menese SDK — 19-chain DeFi gateway for AI assistants.
 
 Send, swap, stake, lend, and automate across 19 blockchains from any MCP-compatible AI tool. Non-custodial — your keys never leave your machine.
 
+<a href="https://glama.ai/mcp/servers/Aboodtt404/mcp-menesesdk">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/Aboodtt404/mcp-menesesdk/badge" alt="mcp-menesesdk MCP server" />
+</a>
+
 ## Install
 
 ```bash
