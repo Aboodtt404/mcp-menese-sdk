@@ -81,8 +81,8 @@ async function main() {
   registerQuoteTool(server, store, config);
   registerSendTool(server, store, config);
   registerSwapTool(server, store, config);
-  registerStakeTool(server, store, config);
-  registerLendTool(server, store, config);
+  registerStakeTool(server);
+  registerLendTool(server);
   registerStrategyTool(server, store, config);
   registerJobsTool(server, store);
 

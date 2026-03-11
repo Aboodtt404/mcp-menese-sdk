@@ -1,69 +1,25 @@
 /**
- * menese_lend — Aave V3 supply/withdraw on EVM chains.
+ * menese_lend — coming soon.
  */
 
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import type { MeneseConfig } from "../config.js";
-import type { IdentityStore } from "../store.js";
-import { stakeOrLend } from "../sdk/ic-client.js";
 import { EVM_CHAINS } from "../sdk/chains.js";
-import { bigIntReplacer, invalidateBalanceCaches } from "./helpers.js";
-import { checkGuard } from "../guards/transaction-guard.js";
 
-export function registerLendTool(
-  server: McpServer,
-  store: IdentityStore,
-  config: MeneseConfig,
-): void {
+export function registerLendTool(server: McpServer): void {
   server.registerTool(
     "menese_lend",
     {
-      description:
-        "Supply or withdraw assets on Aave V3 (EVM chains). Supply earns yield; withdraw retrieves your funds.",
+      description: "[Coming soon] Supply or withdraw assets on Aave V3 (EVM chains).",
       inputSchema: {
         chain: z.enum(EVM_CHAINS as unknown as [string, ...string[]]).describe("EVM chain"),
         action: z.enum(["supply", "withdraw"]).describe("Supply or withdraw"),
-        asset: z.string().describe("Asset to supply/withdraw (e.g. 'ETH', 'USDC')"),
+        asset: z.string().describe("Asset (e.g. 'ETH', 'USDC')"),
         amount: z.string().describe("Amount (decimal)"),
-        mode: z.enum(["quote", "execute"]).optional()
-          .describe("'quote' to preview, 'execute' to act. Default: execute"),
       },
     },
-    async ({ chain, action, asset, amount, mode }) => {
-      const identity = store.get();
-      if (!identity) {
-        return { content: [{ type: "text" as const, text: "No wallet configured. Use menese_setup first." }], isError: true };
-      }
-
-      const guard = checkGuard("menese_lend", { chain, action, asset, amount, mode }, config);
-      if (!guard.allowed) {
-        return { content: [{ type: "text" as const, text: guard.reason! }], isError: true };
-      }
-
-      if (mode === "quote") {
-        return {
-          content: [{
-            type: "text" as const,
-            text: `Ready to ${action} ${amount} ${asset} on Aave V3 (${chain}). Call again with mode "execute" to confirm.`,
-          }],
-        };
-      }
-
-      const result = await stakeOrLend(config, identity.seed, {
-        action, protocol: "aave", chain, asset, amount,
-      });
-
-      if (result.ok) {
-        invalidateBalanceCaches(identity.principal);
-      }
-
-      return {
-        content: [{
-          type: "text" as const,
-          text: JSON.stringify(result, bigIntReplacer, 2),
-        }],
-      };
+    async () => {
+      return { content: [{ type: "text" as const, text: "Lending is coming soon." }] };
     },
   );
 }

@@ -42,8 +42,6 @@ Add to your MCP config:
 | `menese_quote` | Swap quotes, addresses, balance queries |
 | `menese_send` | Send tokens (19 chains) |
 | `menese_swap` | DEX swaps |
-| `menese_stake` | Lido staking (EVM) |
-| `menese_lend` | Aave V3 supply/withdraw (EVM) |
 | `menese_strategy` | DCA / Take Profit / Stop Loss |
 | `menese_jobs` | On-chain agent job scheduling |
 
