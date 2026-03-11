@@ -1,0 +1,28 @@
+name: Menese MCP Server
+description: 19-chain DeFi gateway for AI assistants. Send, swap, stake, lend, and automate across 19 blockchains — non-custodial, runs locally.
+
+startCommand:
+  type: stdio
+  configSchema:
+    type: object
+    properties:
+      seed:
+        type: string
+        description: 64-char hex Ed25519 seed (optional — use menese_setup to generate one interactively)
+      agentCanisterId:
+        type: string
+        description: Menese Agent canister ID for on-chain job scheduling (optional)
+      testMode:
+        type: boolean
+        description: Use test SDK canister instead of production
+        default: false
+  commandFunction: |-
+    (config) => ({
+      command: "npx",
+      args: ["-y", "@menese_protocol/mcp-server"],
+      env: {
+        ...(config.seed ? { MENESE_SEED: config.seed } : {}),
+        ...(config.agentCanisterId ? { MENESE_AGENT_CANISTER_ID: config.agentCanisterId } : {}),
+        ...(config.testMode ? { MENESE_TEST_MODE: "true" } : {}),
+      }
+    })
