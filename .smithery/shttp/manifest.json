@@ -1,0 +1,818 @@
+{
+  "payload": {
+    "type": "hosted",
+    "stateful": false,
+    "hasAuthAdapter": false,
+    "serverCard": {
+      "serverInfo": {
+        "name": "menese-sdk",
+        "version": "1.0.1"
+      },
+      "tools": [
+        {
+          "name": "menese_setup",
+          "description": "Create or import a Menese wallet. Actions: 'new' generates a fresh wallet, 'import' restores from an existing hex seed, 'status' shows current wallet info.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "action": {
+                "type": "string",
+                "enum": [
+                  "new",
+                  "import",
+                  "status"
+                ],
+                "description": "Action to perform"
+              },
+              "seed": {
+                "type": "string",
+                "minLength": 64,
+                "maxLength": 64,
+                "description": "64-char hex seed (for 'import' action only)"
+              }
+            },
+            "required": [
+              "action"
+            ],
+            "additionalProperties": false,
+            "$schema": "http://json-schema.org/draft-07/schema#"
+          },
+          "execution": {
+            "taskSupport": "forbidden"
+          }
+        },
+        {
+          "name": "menese_portfolio",
+          "description": "Get your full portfolio across all 19 supported blockchains (EVM, Solana, Bitcoin, ICP, etc.) plus ICP ecosystem tokens (ckBTC, ckETH, ckUSDC). Requires a configured wallet.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {},
+            "$schema": "http://json-schema.org/draft-07/schema#"
+          },
+          "execution": {
+            "taskSupport": "forbidden"
+          }
+        },
+        {
+          "name": "menese_balance",
+          "description": "Get your native token balance on a specific blockchain.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "chain": {
+                "type": "string",
+                "enum": [
+                  "ethereum",
+                  "polygon",
+                  "arbitrum",
+                  "base",
+                  "optimism",
+                  "bnb",
+                  "solana",
+                  "bitcoin",
+                  "litecoin",
+                  "icp",
+                  "sui",
+                  "ton",
+                  "xrp",
+                  "cardano",
+                  "tron",
+                  "aptos",
+                  "near",
+                  "cloakcoin",
+                  "thorchain"
+                ],
+                "description": "Blockchain to check"
+              }
+            },
+            "required": [
+              "chain"
+            ],
+            "additionalProperties": false,
+            "$schema": "http://json-schema.org/draft-07/schema#"
+          },
+          "execution": {
+            "taskSupport": "forbidden"
+          }
+        },
+        {
+          "name": "menese_prices",
+          "description": "Get current USD prices for crypto tokens. Supports: BTC, ETH, SOL, ICP, MATIC, BNB, ADA, XRP, SUI, TON, APT, NEAR, TRX, LTC, RUNE, CLOAK, USDC, USDT, and more.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "tokens": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1,
+                "maxItems": 20,
+                "description": "Token symbols (e.g. ['BTC', 'ETH', 'SOL'])"
+              }
+            },
+            "required": [
+              "tokens"
+            ],
+            "additionalProperties": false,
+            "$schema": "http://json-schema.org/draft-07/schema#"
+          },
+          "execution": {
+            "taskSupport": "forbidden"
+          }
+        },
+        {
+          "name": "menese_quote",
+          "description": "Multi-action tool: get swap quotes, show all derived addresses, or check a single chain balance.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "action": {
+                "type": "string",
+                "enum": [
+                  "balance",
+                  "addresses",
+                  "quote"
+                ],
+                "description": "What to fetch"
+              },
+              "chain": {
+                "type": "string",
+                "enum": [
+                  "ethereum",
+                  "polygon",
+                  "arbitrum",
+                  "base",
+                  "optimism",
+                  "bnb",
+                  "solana",
+                  "bitcoin",
+                  "litecoin",
+                  "icp",
+                  "sui",
+                  "ton",
+                  "xrp",
+                  "cardano",
+                  "tron",
+                  "aptos",
+                  "near",
+                  "cloakcoin",
+                  "thorchain"
+                ],
+                "description": "Blockchain (required for balance/quote)"
+              },
+              "fromToken": {
+                "type": "string",
+                "description": "Source token symbol (for quote)"
+              },
+              "toToken": {
+                "type": "string",
+                "description": "Destination token symbol (for quote)"
+              },
+              "amount": {
+                "type": "string",
+                "description": "Amount to swap (for quote)"
+              }
+            },
+            "required": [
+              "action"
+            ],
+            "additionalProperties": false,
+            "$schema": "http://json-schema.org/draft-07/schema#"
+          },
+          "execution": {
+            "taskSupport": "forbidden"
+          }
+        },
+        {
+          "name": "menese_send",
+          "description": "Send native tokens on any supported blockchain. Supports 19 chains: Ethereum, Polygon, Arbitrum, Base, Optimism, BNB, Bitcoin, Solana, ICP, SUI, TON, XRP, Litecoin, Cardano, Tron, Aptos, NEAR, CloakCoin, Thorchain.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "chain": {
+                "type": "string",
+                "enum": [
+                  "ethereum",
+                  "polygon",
+                  "arbitrum",
+                  "base",
+                  "optimism",
+                  "bnb",
+                  "solana",
+                  "bitcoin",
+                  "litecoin",
+                  "icp",
+                  "sui",
+                  "ton",
+                  "xrp",
+                  "cardano",
+                  "tron",
+                  "aptos",
+                  "near",
+                  "cloakcoin",
+                  "thorchain"
+                ],
+                "description": "Target blockchain"
+              },
+              "to": {
+                "type": "string",
+                "description": "Recipient address"
+              },
+              "amount": {
+                "type": "string",
+                "description": "Amount to send (decimal, e.g. '0.5')"
+              },
+              "token": {
+                "type": "string",
+                "description": "Token symbol (for ICRC-1 or ERC-20; omit for native token)"
+              },
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "quote",
+                  "execute"
+                ],
+                "description": "'quote' to preview fees, 'execute' to send. Default: execute"
+              }
+            },
+            "required": [
+              "chain",
+              "to",
+              "amount"
+            ],
+            "additionalProperties": false,
+            "$schema": "http://json-schema.org/draft-07/schema#"
+          },
+          "execution": {
+            "taskSupport": "forbidden"
+          }
+        },
+        {
+          "name": "menese_swap",
+          "description": "Swap tokens via DEX on supported chains. EVM: Uniswap V3 | Solana: Raydium | ICP: ICPSwap/KongSwap | SUI: Cetus | Cardano: Minswap | XRP: XRPL DEX.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "chain": {
+                "type": "string",
+                "enum": [
+                  "ethereum",
+                  "polygon",
+                  "arbitrum",
+                  "base",
+                  "optimism",
+                  "bnb",
+                  "solana",
+                  "bitcoin",
+                  "litecoin",
+                  "icp",
+                  "sui",
+                  "ton",
+                  "xrp",
+                  "cardano",
+                  "tron",
+                  "aptos",
+                  "near",
+                  "cloakcoin",
+                  "thorchain"
+                ],
+                "description": "Chain to swap on"
+              },
+              "fromToken": {
+                "type": "string",
+                "description": "Source token symbol or address"
+              },
+              "toToken": {
+                "type": "string",
+                "description": "Destination token symbol or address"
+              },
+              "amount": {
+                "type": "string",
+                "description": "Amount of fromToken to swap (decimal)"
+              },
+              "slippageBps": {
+                "type": "number",
+                "minimum": 1,
+                "maximum": 5000,
+                "description": "Slippage tolerance in basis points (default 250 = 2.5%)"
+              },
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "quote",
+                  "execute"
+                ],
+                "description": "'quote' to preview swap, 'execute' to swap. Default: execute"
+              }
+            },
+            "required": [
+              "chain",
+              "fromToken",
+              "toToken",
+              "amount"
+            ],
+            "additionalProperties": false,
+            "$schema": "http://json-schema.org/draft-07/schema#"
+          },
+          "execution": {
+            "taskSupport": "forbidden"
+          }
+        },
+        {
+          "name": "menese_stake",
+          "description": "[Coming soon] Stake ETH via Lido protocol on EVM chains.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "chain": {
+                "type": "string",
+                "enum": [
+                  "ethereum",
+                  "polygon",
+                  "arbitrum",
+                  "base",
+                  "optimism",
+                  "bnb"
+                ],
+                "description": "EVM chain"
+              },
+              "action": {
+                "type": "string",
+                "enum": [
+                  "stake",
+                  "unstake"
+                ],
+                "description": "Stake or unstake"
+              },
+              "protocol": {
+                "type": "string",
+                "default": "lido",
+                "description": "Staking protocol"
+              },
+              "amount": {
+                "type": "string",
+                "description": "Amount of ETH (decimal)"
+              }
+            },
+            "required": [
+              "chain",
+              "action",
+              "amount"
+            ],
+            "additionalProperties": false,
+            "$schema": "http://json-schema.org/draft-07/schema#"
+          },
+          "execution": {
+            "taskSupport": "forbidden"
+          }
+        },
+        {
+          "name": "menese_lend",
+          "description": "[Coming soon] Supply or withdraw assets on Aave V3 (EVM chains).",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "chain": {
+                "type": "string",
+                "enum": [
+                  "ethereum",
+                  "polygon",
+                  "arbitrum",
+                  "base",
+                  "optimism",
+                  "bnb"
+                ],
+                "description": "EVM chain"
+              },
+              "action": {
+                "type": "string",
+                "enum": [
+                  "supply",
+                  "withdraw"
+                ],
+                "description": "Supply or withdraw"
+              },
+              "asset": {
+                "type": "string",
+                "description": "Asset (e.g. 'ETH', 'USDC')"
+              },
+              "amount": {
+                "type": "string",
+                "description": "Amount (decimal)"
+              }
+            },
+            "required": [
+              "chain",
+              "action",
+              "asset",
+              "amount"
+            ],
+            "additionalProperties": false,
+            "$schema": "http://json-schema.org/draft-07/schema#"
+          },
+          "execution": {
+            "taskSupport": "forbidden"
+          }
+        },
+        {
+          "name": "menese_strategy",
+          "description": "Manage automated trading strategies: DCA (dollar-cost averaging), Take Profit (sell above target), Stop Loss (sell below threshold).",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "action": {
+                "type": "string",
+                "enum": [
+                  "create",
+                  "list",
+                  "cancel"
+                ],
+                "description": "Action to perform"
+              },
+              "strategyType": {
+                "type": "string",
+                "enum": [
+                  "dca",
+                  "take_profit",
+                  "stop_loss"
+                ],
+                "description": "Strategy type (required for create)"
+              },
+              "chain": {
+                "type": "string",
+                "enum": [
+                  "ethereum",
+                  "polygon",
+                  "arbitrum",
+                  "base",
+                  "optimism",
+                  "bnb",
+                  "solana",
+                  "bitcoin",
+                  "litecoin",
+                  "icp",
+                  "sui",
+                  "ton",
+                  "xrp",
+                  "cardano",
+                  "tron",
+                  "aptos",
+                  "near",
+                  "cloakcoin",
+                  "thorchain"
+                ],
+                "description": "Target chain (required for create)"
+              },
+              "amount": {
+                "type": "string",
+                "description": "Amount per execution (decimal, for create)"
+              },
+              "intervalSeconds": {
+                "type": "number",
+                "minimum": 60,
+                "description": "Interval between DCA executions in seconds (min 60)"
+              },
+              "maxExecutions": {
+                "type": "number",
+                "minimum": 1,
+                "description": "Max number of executions"
+              },
+              "targetPrice": {
+                "type": "string",
+                "description": "Target price in USD (for take_profit/stop_loss)"
+              },
+              "ruleId": {
+                "type": "number",
+                "description": "Rule ID (for cancel)"
+              }
+            },
+            "required": [
+              "action"
+            ],
+            "additionalProperties": false,
+            "$schema": "http://json-schema.org/draft-07/schema#"
+          },
+          "execution": {
+            "taskSupport": "forbidden"
+          }
+        },
+        {
+          "name": "menese_jobs",
+          "description": "Manage on-chain scheduled jobs via your MeneseAgent canister. Jobs persist and execute on-chain (recurring swaps, conditional trades, etc.). Requires an agent canister (set MENESE_AGENT_CANISTER_ID env var).",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "action": {
+                "type": "string",
+                "enum": [
+                  "list",
+                  "create",
+                  "pause",
+                  "resume",
+                  "delete"
+                ],
+                "description": "Action"
+              },
+              "name": {
+                "type": "string",
+                "description": "Job name (for create)"
+              },
+              "description": {
+                "type": "string",
+                "description": "Job description (for create)"
+              },
+              "jobType": {
+                "type": "string",
+                "enum": [
+                  "recurring",
+                  "oneshot",
+                  "conditional"
+                ],
+                "description": "Job type (for create)"
+              },
+              "intervalSeconds": {
+                "type": "number",
+                "minimum": 60,
+                "description": "Interval for recurring jobs (seconds, min 60)"
+              },
+              "chain": {
+                "type": "string",
+                "enum": [
+                  "ethereum",
+                  "polygon",
+                  "arbitrum",
+                  "base",
+                  "optimism",
+                  "bnb",
+                  "solana",
+                  "bitcoin",
+                  "litecoin",
+                  "icp",
+                  "sui",
+                  "ton",
+                  "xrp",
+                  "cardano",
+                  "tron",
+                  "aptos",
+                  "near",
+                  "cloakcoin",
+                  "thorchain"
+                ],
+                "description": "Chain for swap action"
+              },
+              "fromToken": {
+                "type": "string",
+                "description": "Source token for swap"
+              },
+              "toToken": {
+                "type": "string",
+                "description": "Destination token for swap"
+              },
+              "amount": {
+                "type": "string",
+                "description": "Swap amount (decimal)"
+              },
+              "slippageBps": {
+                "type": "number",
+                "minimum": 1,
+                "maximum": 5000,
+                "description": "Slippage in basis points (default 250)"
+              },
+              "conditionType": {
+                "type": "string",
+                "enum": [
+                  "price_above",
+                  "price_below"
+                ],
+                "description": "Condition type (for conditional jobs)"
+              },
+              "conditionToken": {
+                "type": "string",
+                "description": "Token to monitor price of"
+              },
+              "conditionThreshold": {
+                "type": "string",
+                "description": "Price threshold in USD (e.g. '50000')"
+              },
+              "checkIntervalSeconds": {
+                "type": "number",
+                "minimum": 60,
+                "description": "How often to check condition (seconds)"
+              },
+              "allowFundMovement": {
+                "type": "boolean",
+                "description": "Allow job to move funds (required for swaps, default false)"
+              },
+              "maxExecutions": {
+                "type": "number",
+                "minimum": 1,
+                "description": "Max number of executions"
+              },
+              "jobId": {
+                "type": "number",
+                "description": "Job ID (for pause/resume/delete)"
+              }
+            },
+            "required": [
+              "action"
+            ],
+            "additionalProperties": false,
+            "$schema": "http://json-schema.org/draft-07/schema#"
+          },
+          "execution": {
+            "taskSupport": "forbidden"
+          }
+        }
+      ],
+      "resources": [
+        {
+          "name": "wallet-status",
+          "uri": "menese://wallet/status",
+          "description": "Current wallet identity status",
+          "mimeType": "application/json"
+        },
+        {
+          "name": "wallet-addresses",
+          "uri": "menese://wallet/addresses",
+          "description": "Wallet addresses across all 19 chains",
+          "mimeType": "application/json"
+        },
+        {
+          "name": "ethereum balance",
+          "uri": "menese://wallet/balance/ethereum",
+          "description": "Balance for a specific chain",
+          "mimeType": "application/json"
+        },
+        {
+          "name": "polygon balance",
+          "uri": "menese://wallet/balance/polygon",
+          "description": "Balance for a specific chain",
+          "mimeType": "application/json"
+        },
+        {
+          "name": "arbitrum balance",
+          "uri": "menese://wallet/balance/arbitrum",
+          "description": "Balance for a specific chain",
+          "mimeType": "application/json"
+        },
+        {
+          "name": "base balance",
+          "uri": "menese://wallet/balance/base",
+          "description": "Balance for a specific chain",
+          "mimeType": "application/json"
+        },
+        {
+          "name": "optimism balance",
+          "uri": "menese://wallet/balance/optimism",
+          "description": "Balance for a specific chain",
+          "mimeType": "application/json"
+        },
+        {
+          "name": "bnb balance",
+          "uri": "menese://wallet/balance/bnb",
+          "description": "Balance for a specific chain",
+          "mimeType": "application/json"
+        },
+        {
+          "name": "solana balance",
+          "uri": "menese://wallet/balance/solana",
+          "description": "Balance for a specific chain",
+          "mimeType": "application/json"
+        },
+        {
+          "name": "bitcoin balance",
+          "uri": "menese://wallet/balance/bitcoin",
+          "description": "Balance for a specific chain",
+          "mimeType": "application/json"
+        },
+        {
+          "name": "litecoin balance",
+          "uri": "menese://wallet/balance/litecoin",
+          "description": "Balance for a specific chain",
+          "mimeType": "application/json"
+        },
+        {
+          "name": "icp balance",
+          "uri": "menese://wallet/balance/icp",
+          "description": "Balance for a specific chain",
+          "mimeType": "application/json"
+        },
+        {
+          "name": "sui balance",
+          "uri": "menese://wallet/balance/sui",
+          "description": "Balance for a specific chain",
+          "mimeType": "application/json"
+        },
+        {
+          "name": "ton balance",
+          "uri": "menese://wallet/balance/ton",
+          "description": "Balance for a specific chain",
+          "mimeType": "application/json"
+        },
+        {
+          "name": "xrp balance",
+          "uri": "menese://wallet/balance/xrp",
+          "description": "Balance for a specific chain",
+          "mimeType": "application/json"
+        },
+        {
+          "name": "cardano balance",
+          "uri": "menese://wallet/balance/cardano",
+          "description": "Balance for a specific chain",
+          "mimeType": "application/json"
+        },
+        {
+          "name": "tron balance",
+          "uri": "menese://wallet/balance/tron",
+          "description": "Balance for a specific chain",
+          "mimeType": "application/json"
+        },
+        {
+          "name": "aptos balance",
+          "uri": "menese://wallet/balance/aptos",
+          "description": "Balance for a specific chain",
+          "mimeType": "application/json"
+        },
+        {
+          "name": "near balance",
+          "uri": "menese://wallet/balance/near",
+          "description": "Balance for a specific chain",
+          "mimeType": "application/json"
+        },
+        {
+          "name": "cloakcoin balance",
+          "uri": "menese://wallet/balance/cloakcoin",
+          "description": "Balance for a specific chain",
+          "mimeType": "application/json"
+        },
+        {
+          "name": "thorchain balance",
+          "uri": "menese://wallet/balance/thorchain",
+          "description": "Balance for a specific chain",
+          "mimeType": "application/json"
+        }
+      ],
+      "prompts": [
+        {
+          "name": "portfolio-review",
+          "description": "Review portfolio and suggest optimizations"
+        },
+        {
+          "name": "swap-tokens",
+          "description": "Quote and execute a token swap",
+          "arguments": [
+            {
+              "name": "fromToken",
+              "description": "Token to sell",
+              "required": true
+            },
+            {
+              "name": "toToken",
+              "description": "Token to buy",
+              "required": true
+            },
+            {
+              "name": "chain",
+              "description": "Chain to swap on",
+              "required": true
+            }
+          ]
+        },
+        {
+          "name": "setup-dca",
+          "description": "Set up a dollar-cost averaging strategy",
+          "arguments": [
+            {
+              "name": "token",
+              "description": "Token to accumulate",
+              "required": true
+            },
+            {
+              "name": "amount",
+              "description": "Amount per buy",
+              "required": true
+            },
+            {
+              "name": "interval",
+              "description": "Buy interval (e.g. 'daily', 'weekly')",
+              "required": true
+            }
+          ]
+        },
+        {
+          "name": "security-check",
+          "description": "Verify wallet status and review balances"
+        }
+      ]
+    },
+    "source": {
+      "commit": "7f969776627e5b85773901e649a917ee21bd33ce",
+      "branch": "main"
+    }
+  },
+  "artifacts": {
+    "module": "module.js",
+    "sourcemap": "module.js.map"
+  }
+}

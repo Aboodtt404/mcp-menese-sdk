@@ -55,25 +55,21 @@ const MENESE_INSTRUCTIONS = `You have menese_* tools for multi-chain crypto oper
 - Supported chains: ethereum, polygon, arbitrum, base, optimism, bnb, solana, bitcoin, litecoin, icp, sui, ton, xrp, cardano, tron, aptos, near, cloakcoin, thorchain
 - Caching: prices 60s, balances 30s, addresses permanent. Write ops auto-invalidate caches.`;
 
-async function main() {
+function buildServer(): McpServer {
   const config = loadConfig();
-
-  // Initialize store — env seed takes priority over file
   const envSeed = process.env.MENESE_SEED;
   const envPrincipal = envSeed ? getPrincipalFromSeed(envSeed) : undefined;
   const store = createStore(envSeed, envPrincipal);
 
-  // Wire agent canister from env if not already in store
   if (config.agentCanisterId && !store.getAgentCanisterId()) {
     store.setAgentCanisterId(config.agentCanisterId);
   }
 
   const server = new McpServer(
-    { name: "menese-sdk", version: "1.0.0" },
+    { name: "menese-sdk", version: "1.0.1" },
     { instructions: MENESE_INSTRUCTIONS },
   );
 
-  // Register all 11 tools
   registerSetupTool(server, store, config);
   registerPortfolioTool(server, store, config);
   registerBalanceTool(server, store, config);
@@ -85,14 +81,19 @@ async function main() {
   registerLendTool(server);
   registerStrategyTool(server, store, config);
   registerJobsTool(server, store);
-
-  // Register resources (wallet status, addresses, chain balances)
   registerWalletResources(server, store, config);
-
-  // Register prompts (portfolio-review, swap-tokens, setup-dca, security-check)
   registerDeFiPrompts(server);
 
-  // Connect via stdio transport
+  return server;
+}
+
+// Required by Smithery for capability scanning
+export function createSandboxServer() {
+  return buildServer();
+}
+
+async function main() {
+  const server = buildServer();
   const transport = new StdioServerTransport();
   await server.connect(transport);
   console.error("Menese SDK MCP Server running on stdio");
