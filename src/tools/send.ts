@@ -10,6 +10,7 @@ import { sendToken } from "../sdk/ic-client.js";
 import { SUPPORTED_CHAINS } from "../sdk/chains.js";
 import { bigIntReplacer, invalidateBalanceCaches } from "./helpers.js";
 import { checkGuard } from "../guards/transaction-guard.js";
+import { resolveActorIdentity } from "../sdk/identity-resolver.js";
 
 export function registerSendTool(
   server: McpServer,
@@ -52,10 +53,10 @@ export function registerSendTool(
         };
       }
 
-      const result = await sendToken(config, identity.seed, chain, to, amount, { token });
+      const result = await sendToken(config, resolveActorIdentity(store), chain, to, amount, { token });
 
       if (result.ok) {
-        invalidateBalanceCaches(identity.principal);
+        invalidateBalanceCaches(store.getPrincipal()!);
       }
 
       return {

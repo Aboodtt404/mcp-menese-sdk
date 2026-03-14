@@ -44,6 +44,8 @@ export interface IdentityStore {
   clear(): void;
   getSeed(): string | null;
   getPrincipal(): string | null;
+  /** Returns a pre-built SignIdentity (e.g. DelegationIdentity from II). Null for local/seed-based stores. */
+  getIdentity(): import("@dfinity/agent").SignIdentity | null;
   getAgentCanisterId(): string | null;
   setAgentCanisterId(canisterId: string): void;
 }
@@ -85,6 +87,10 @@ export function createStore(envSeed?: string, envPrincipal?: string): IdentitySt
 
     getPrincipal() {
       return current?.principal ?? null;
+    },
+
+    getIdentity() {
+      return null; // Local store uses seeds, not pre-built identities
     },
 
     getAgentCanisterId() {

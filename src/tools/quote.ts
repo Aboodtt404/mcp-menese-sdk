@@ -10,6 +10,7 @@ import { getAllAddresses, getChainBalance, getSwapQuote } from "../sdk/ic-client
 import { SUPPORTED_CHAINS } from "../sdk/chains.js";
 import { cacheFetch, CacheKeys, TTL } from "../sdk/cache.js";
 import { bigIntReplacer } from "./helpers.js";
+import { resolveActorIdentity } from "../sdk/identity-resolver.js";
 
 export function registerQuoteTool(
   server: McpServer,
@@ -40,7 +41,7 @@ export function registerQuoteTool(
         const addresses = await cacheFetch(
           CacheKeys.addresses(identity.principal),
           TTL.ADDRESSES,
-          () => getAllAddresses(config, identity.principal, identity.seed),
+          () => getAllAddresses(config, identity.principal, resolveActorIdentity(store)),
         );
         return {
           content: [{
@@ -74,7 +75,7 @@ export function registerQuoteTool(
           isError: true,
         };
       }
-      const quoteResult = await getSwapQuote(config, identity.seed, {
+      const quoteResult = await getSwapQuote(config, resolveActorIdentity(store), {
         chain, fromToken, toToken, amount,
       });
       return {

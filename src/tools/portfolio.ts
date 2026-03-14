@@ -7,6 +7,7 @@ import type { MeneseConfig } from "../config.js";
 import type { IdentityStore } from "../store.js";
 import { getPortfolio, getAllICRC1Balances, type BalanceResult } from "../sdk/ic-client.js";
 import { cacheFetch, CacheKeys, TTL } from "../sdk/cache.js";
+import { resolveActorIdentity } from "../sdk/identity-resolver.js";
 
 const CHAIN_LABEL: Record<string, string> = {
   ethereum: "Ethereum", polygon: "Polygon", arbitrum: "Arbitrum",
@@ -54,9 +55,10 @@ export function registerPortfolioTool(
         CacheKeys.portfolio(identity.principal),
         TTL.PORTFOLIO,
         async () => {
+          const seedOrId = resolveActorIdentity(store);
           const [native, icrc1] = await Promise.all([
-            getPortfolio(config, identity.principal, identity.seed),
-            getAllICRC1Balances(config, identity.seed),
+            getPortfolio(config, identity.principal, seedOrId),
+            getAllICRC1Balances(config, seedOrId),
           ]);
           return { native, icrc1Tokens: icrc1 };
         },

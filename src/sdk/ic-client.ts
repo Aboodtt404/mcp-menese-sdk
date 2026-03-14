@@ -7,13 +7,18 @@
  *   using a per-user Ed25519 identity stored as a 32-byte hex seed.
  */
 
-import { HttpAgent, Actor } from "@dfinity/agent";
+import { HttpAgent, Actor, type SignIdentity } from "@dfinity/agent";
 import { IDL } from "@dfinity/candid";
 import { Principal } from "@dfinity/principal";
 import { Ed25519KeyIdentity } from "@dfinity/identity";
 import * as crypto from "node:crypto";
 import type { MeneseConfig } from "../config.js";
 import { EVM_CHAINS, type EvmChain } from "./chains.js";
+
+/** A seed hex string or a pre-built SignIdentity (e.g. DelegationIdentity from II). */
+export type SeedOrIdentity = string | SignIdentity;
+
+export type { SignIdentity } from "@dfinity/agent";
 
 // ── Candid Types ─────────────────────────────────────────────────────
 
@@ -610,7 +615,7 @@ export interface ChainAddresses {
 export async function getAllAddresses(
   config: MeneseConfig,
   principalText: string,
-  seed?: string,
+  seed?: SeedOrIdentity,
 ): Promise<{ ok: true; data: ChainAddresses } | { ok: false; error: string }> {
   const cached = addressCache.get(principalText);
   if (cached) return { ok: true, data: cached };
@@ -700,7 +705,7 @@ export async function getChainAddress(
   config: MeneseConfig,
   principalText: string,
   chain: string,
-  seed?: string,
+  seed?: SeedOrIdentity,
 ): Promise<string | null> {
   const res = await getAllAddresses(config, principalText, seed);
   if (!res.ok) return null;
@@ -844,12 +849,14 @@ export async function getChainBalance(
  */
 export async function getChainBalanceAuthenticated(
   config: MeneseConfig,
-  seed: string,
+  seed: SeedOrIdentity,
   chain: string,
 ): Promise<{ ok: true; data: BalanceResult } | { ok: false; error: string }> {
   try {
     const actor = getAuthenticatedActor(config, seed);
-    const principalText = getPrincipalFromSeed(seed);
+    const principalText = typeof seed === "string"
+      ? getPrincipalFromSeed(seed)
+      : seed.getPrincipal().toText();
     const address = await getChainAddress(config, principalText, chain, seed) ?? principalText;
 
     if (chain === "xrp") {
@@ -933,7 +940,7 @@ export async function getChainBalanceAuthenticated(
 export async function getPortfolio(
   config: MeneseConfig,
   principalText: string,
-  seed?: string,
+  seed?: SeedOrIdentity,
 ): Promise<{ ok: true; data: BalanceResult[]; errors?: Array<{ chain: string; error: string }> } | { ok: false; error: string }> {
   // Pre-populate address cache with all 12 chain families if we have seed
   if (seed) {
@@ -1016,7 +1023,7 @@ export async function getSupportedICPTokens(
 /** Get ICRC-1 token balance. Requires seed (authenticated). */
 export async function getICRC1TokenBalance(
   config: MeneseConfig,
-  seed: string,
+  seed: SeedOrIdentity,
   canisterId: string,
   symbol: string,
 ): Promise<{ ok: true; data: TokenBalance } | { ok: false; error: string }> {
@@ -1037,7 +1044,7 @@ export async function getICRC1TokenBalance(
 /** Get all ICRC-1 token balances. Returns non-zero tokens only. */
 export async function getAllICRC1Balances(
   config: MeneseConfig,
-  seed: string,
+  seed: SeedOrIdentity,
 ): Promise<TokenBalance[]> {
   const tokens = await getSupportedICPTokens(config);
   if (tokens.length === 0) return [];
@@ -1068,9 +1075,11 @@ export function getPrincipalFromSeed(seed: string): string {
   return identity.getPrincipal().toText();
 }
 
-/** Create an authenticated Actor for the SDK canister using a user's seed. */
-function getAuthenticatedActor(config: MeneseConfig, seed: string) {
-  const identity = Ed25519KeyIdentity.fromSecretKey(hexToBytes(seed));
+/** Create an authenticated Actor for the SDK canister using a seed or SignIdentity. */
+function getAuthenticatedActor(config: MeneseConfig, seedOrIdentity: string | SignIdentity) {
+  const identity = typeof seedOrIdentity === "string"
+    ? Ed25519KeyIdentity.fromSecretKey(hexToBytes(seedOrIdentity))
+    : seedOrIdentity;
   const agent = HttpAgent.createSync({ host: "https://icp-api.io", identity });
   return Actor.createActor(idlFactory, {
     agent,
@@ -1105,7 +1114,7 @@ const EVM_CHAIN_ID: Record<EvmChain, bigint> = {
 
 export async function sendToken(
   config: MeneseConfig,
-  seed: string,
+  seed: SeedOrIdentity,
   chain: string,
   to: string,
   amount: string,
@@ -1197,7 +1206,7 @@ export async function sendToken(
 
 export async function swapTokensOnChain(
   config: MeneseConfig,
-  seed: string,
+  seed: SeedOrIdentity,
   params: {
     chain: string;
     fromToken: string;
@@ -1310,7 +1319,7 @@ export async function swapTokensOnChain(
 
 export async function stakeOrLend(
   config: MeneseConfig,
-  seed: string,
+  seed: SeedOrIdentity,
   params: {
     action: string;  // "supply" | "withdraw" | "stake"
     protocol: string; // "aave" | "lido"
@@ -1360,7 +1369,7 @@ export async function stakeOrLend(
 
 export async function addStrategy(
   config: MeneseConfig,
-  seed: string,
+  seed: SeedOrIdentity,
   rule: Record<string, unknown>,
 ): Promise<SdkWriteResult<bigint>> {
   try {
@@ -1374,7 +1383,7 @@ export async function addStrategy(
 
 export async function listStrategies(
   config: MeneseConfig,
-  seed: string,
+  seed: SeedOrIdentity,
 ): Promise<SdkWriteResult<unknown[]>> {
   try {
     const actor = getAuthenticatedActor(config, seed);
@@ -1387,7 +1396,7 @@ export async function listStrategies(
 
 export async function deleteStrategy(
   config: MeneseConfig,
-  seed: string,
+  seed: SeedOrIdentity,
   ruleId: number,
 ): Promise<SdkWriteResult> {
   try {
@@ -1418,7 +1427,7 @@ function parseTier(raw: Record<string, null>): string {
 
 export async function getGatewayAccount(
   config: MeneseConfig,
-  seed: string,
+  seed: SeedOrIdentity,
 ): Promise<SdkWriteResult<GatewayAccount>> {
   try {
     const actor = getAuthenticatedActor(config, seed);
@@ -1457,7 +1466,7 @@ const TIER_VARIANT: Record<string, Record<string, null>> = {
 
 export async function purchaseSubscription(
   config: MeneseConfig,
-  seed: string,
+  seed: SeedOrIdentity,
   tier: string,
   currency: string,
 ): Promise<SdkWriteResult<GatewayAccount>> {
@@ -1495,7 +1504,7 @@ export async function purchaseSubscription(
 
 export async function depositCredits(
   config: MeneseConfig,
-  seed: string,
+  seed: SeedOrIdentity,
   currency: string,
   amount: bigint,
 ): Promise<SdkWriteResult<{ id: bigint; usdValueMicroUsd: bigint }>> {
@@ -1519,7 +1528,7 @@ export interface QuoteResult {
 
 export async function getSwapQuote(
   config: MeneseConfig,
-  seed: string,
+  seed: SeedOrIdentity,
   params: {
     chain: string;
     fromToken: string;

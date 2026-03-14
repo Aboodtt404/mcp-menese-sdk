@@ -10,6 +10,7 @@ import { getChainBalance, getChainBalanceAuthenticated } from "../sdk/ic-client.
 import { SUPPORTED_CHAINS } from "../sdk/chains.js";
 import { cacheFetch, CacheKeys, TTL } from "../sdk/cache.js";
 import { bigIntReplacer } from "./helpers.js";
+import { resolveActorIdentity } from "../sdk/identity-resolver.js";
 
 const AUTH_CHAINS = ["xrp", "cardano", "aptos", "near", "tron", "cloakcoin", "thorchain"];
 
@@ -37,7 +38,7 @@ export function registerBalanceTool(
         TTL.BALANCE,
         async () => {
           if (AUTH_CHAINS.includes(chain)) {
-            return getChainBalanceAuthenticated(config, identity.seed, chain);
+            return getChainBalanceAuthenticated(config, resolveActorIdentity(store), chain);
           }
           return getChainBalance(config, identity.principal, chain);
         },

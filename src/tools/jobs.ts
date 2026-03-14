@@ -17,6 +17,7 @@ import {
   priceBelowCondition,
   swapJobAction,
 } from "../sdk/agent-client.js";
+import { resolveActorIdentity } from "../sdk/identity-resolver.js";
 import { SUPPORTED_CHAINS } from "../sdk/chains.js";
 import { CHAIN_DECIMALS } from "../sdk/ic-client.js";
 import { bigIntReplacer } from "./helpers.js";
@@ -79,25 +80,25 @@ export function registerJobsTool(
       }
 
       if (params.action === "list") {
-        const result = await listAgentJobs(agentCanisterId, identity.seed);
+        const result = await listAgentJobs(agentCanisterId, resolveActorIdentity(store));
         return { content: [{ type: "text" as const, text: JSON.stringify(result, bigIntReplacer, 2) }] };
       }
 
       if (params.action === "pause") {
         if (params.jobId == null) return { content: [{ type: "text" as const, text: "jobId required." }], isError: true };
-        const result = await pauseAgentJob(agentCanisterId, identity.seed, params.jobId);
+        const result = await pauseAgentJob(agentCanisterId, resolveActorIdentity(store), params.jobId);
         return { content: [{ type: "text" as const, text: JSON.stringify(result, bigIntReplacer, 2) }] };
       }
 
       if (params.action === "resume") {
         if (params.jobId == null) return { content: [{ type: "text" as const, text: "jobId required." }], isError: true };
-        const result = await resumeAgentJob(agentCanisterId, identity.seed, params.jobId);
+        const result = await resumeAgentJob(agentCanisterId, resolveActorIdentity(store), params.jobId);
         return { content: [{ type: "text" as const, text: JSON.stringify(result, bigIntReplacer, 2) }] };
       }
 
       if (params.action === "delete") {
         if (params.jobId == null) return { content: [{ type: "text" as const, text: "jobId required." }], isError: true };
-        const result = await cancelAgentJob(agentCanisterId, identity.seed, params.jobId);
+        const result = await cancelAgentJob(agentCanisterId, resolveActorIdentity(store), params.jobId);
         return { content: [{ type: "text" as const, text: JSON.stringify(result, bigIntReplacer, 2) }] };
       }
 
@@ -144,7 +145,7 @@ export function registerJobsTool(
         amountBigInt, params.slippageBps ?? 250,
       );
 
-      const result = await createAgentJob(agentCanisterId, identity.seed, {
+      const result = await createAgentJob(agentCanisterId, resolveActorIdentity(store), {
         name: params.name,
         description: params.description ?? "",
         jobType,

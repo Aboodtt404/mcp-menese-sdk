@@ -9,6 +9,7 @@ import type { IdentityStore } from "../store.js";
 import { addStrategy, listStrategies, deleteStrategy, CHAIN_DECIMALS } from "../sdk/ic-client.js";
 import { SUPPORTED_CHAINS } from "../sdk/chains.js";
 import { bigIntReplacer } from "./helpers.js";
+import { resolveActorIdentity } from "../sdk/identity-resolver.js";
 
 const CHAIN_TYPE_MAP: Record<string, Record<string, null>> = {
   bitcoin: { Bitcoin: null }, litecoin: { Litecoin: null }, ethereum: { Ethereum: null },
@@ -60,7 +61,7 @@ export function registerStrategyTool(
       }
 
       if (action === "list") {
-        const result = await listStrategies(config, identity.seed);
+        const result = await listStrategies(config, resolveActorIdentity(store));
         return {
           content: [{
             type: "text" as const,
@@ -73,7 +74,7 @@ export function registerStrategyTool(
         if (ruleId == null) {
           return { content: [{ type: "text" as const, text: "ruleId is required for cancel." }], isError: true };
         }
-        const result = await deleteStrategy(config, identity.seed, ruleId);
+        const result = await deleteStrategy(config, resolveActorIdentity(store), ruleId);
         return {
           content: [{
             type: "text" as const,
@@ -133,7 +134,7 @@ export function registerStrategyTool(
         rule.dcaConfig = [{ intervalSeconds: BigInt(intervalSeconds), maxExecutions: maxExecutions ? [BigInt(maxExecutions)] : [] }];
       }
 
-      const result = await addStrategy(config, identity.seed, rule);
+      const result = await addStrategy(config, resolveActorIdentity(store), rule);
       return {
         content: [{
           type: "text" as const,

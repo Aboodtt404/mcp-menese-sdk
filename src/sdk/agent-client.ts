@@ -8,6 +8,7 @@
 import { HttpAgent, Actor } from "@dfinity/agent";
 import { IDL } from "@dfinity/candid";
 import { Ed25519KeyIdentity } from "@dfinity/identity";
+import type { SeedOrIdentity } from "./ic-client.js";
 
 // ── Helpers ──────────────────────────────────────────────────────────
 
@@ -162,8 +163,10 @@ const agentIdlFactory: IDL.InterfaceFactory = ({ IDL: _IDL }) => {
 
 // ── Actor Factories ──────────────────────────────────────────────────
 
-function getAgentActor(canisterId: string, seed: string) {
-  const identity = Ed25519KeyIdentity.fromSecretKey(hexToBytes(seed));
+function getAgentActor(canisterId: string, seed: SeedOrIdentity) {
+  const identity = typeof seed === "string"
+    ? Ed25519KeyIdentity.fromSecretKey(hexToBytes(seed))
+    : seed;
   const agent = HttpAgent.createSync({ host: "https://icp-api.io", identity });
   return Actor.createActor(agentIdlFactory, { agent, canisterId }) as unknown as Record<
     string,
@@ -225,7 +228,7 @@ export async function checkAgentHealth(
 /** Get agent config — needs authenticated caller. */
 export async function getAgentConfig(
   canisterId: string,
-  seed: string,
+  seed: SeedOrIdentity,
 ): Promise<AgentResult<Record<string, unknown>>> {
   try {
     const actor = getAgentActor(canisterId, seed);
@@ -239,7 +242,7 @@ export async function getAgentConfig(
 /** List all jobs — query call. */
 export async function listAgentJobs(
   canisterId: string,
-  seed: string,
+  seed: SeedOrIdentity,
 ): Promise<AgentResult<unknown[]>> {
   try {
     const actor = getAgentActor(canisterId, seed);
@@ -253,7 +256,7 @@ export async function listAgentJobs(
 /** Get a single job by ID — query call. */
 export async function getAgentJob(
   canisterId: string,
-  seed: string,
+  seed: SeedOrIdentity,
   jobId: number,
 ): Promise<AgentResult<unknown | null>> {
   try {
@@ -280,7 +283,7 @@ export interface CreateJobParams {
 /** Create a new job on the agent canister. */
 export async function createAgentJob(
   canisterId: string,
-  seed: string,
+  seed: SeedOrIdentity,
   params: CreateJobParams,
 ): Promise<AgentResult<bigint>> {
   try {
@@ -302,7 +305,7 @@ export async function createAgentJob(
 /** Pause a job. */
 export async function pauseAgentJob(
   canisterId: string,
-  seed: string,
+  seed: SeedOrIdentity,
   jobId: number,
 ): Promise<AgentResult> {
   try {
@@ -317,7 +320,7 @@ export async function pauseAgentJob(
 /** Resume a paused job. */
 export async function resumeAgentJob(
   canisterId: string,
-  seed: string,
+  seed: SeedOrIdentity,
   jobId: number,
 ): Promise<AgentResult> {
   try {
@@ -332,7 +335,7 @@ export async function resumeAgentJob(
 /** Cancel a job (cannot be resumed). */
 export async function cancelAgentJob(
   canisterId: string,
-  seed: string,
+  seed: SeedOrIdentity,
   jobId: number,
 ): Promise<AgentResult> {
   try {

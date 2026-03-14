@@ -10,6 +10,7 @@ import { swapTokensOnChain } from "../sdk/ic-client.js";
 import { SUPPORTED_CHAINS } from "../sdk/chains.js";
 import { bigIntReplacer, invalidateBalanceCaches } from "./helpers.js";
 import { checkGuard } from "../guards/transaction-guard.js";
+import { resolveActorIdentity } from "../sdk/identity-resolver.js";
 
 export function registerSwapTool(
   server: McpServer,
@@ -54,12 +55,12 @@ export function registerSwapTool(
         };
       }
 
-      const result = await swapTokensOnChain(config, identity.seed, {
+      const result = await swapTokensOnChain(config, resolveActorIdentity(store), {
         chain, fromToken, toToken, amount, slippageBps,
       });
 
       if (result.ok) {
-        invalidateBalanceCaches(identity.principal);
+        invalidateBalanceCaches(store.getPrincipal()!);
       }
 
       return {

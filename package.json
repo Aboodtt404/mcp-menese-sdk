@@ -1,6 +1,6 @@
 {
   "name": "@menese_protocol/mcp-server",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "MCP server for Menese SDK — 19-chain DeFi gateway",
   "type": "module",
   "bin": {
