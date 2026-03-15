@@ -16,8 +16,6 @@ import { registerPricesTool } from "./tools/prices.js";
 import { registerQuoteTool } from "./tools/quote.js";
 import { registerSendTool } from "./tools/send.js";
 import { registerSwapTool } from "./tools/swap.js";
-import { registerStakeTool } from "./tools/stake.js";
-import { registerLendTool } from "./tools/lend.js";
 import { registerStrategyTool } from "./tools/strategy.js";
 import { registerJobsTool } from "./tools/jobs.js";
 
@@ -36,8 +34,6 @@ const MENESE_INSTRUCTIONS = `You have menese_* tools for multi-chain crypto oper
 **Write operations** (wallet required — use menese_setup first):
 - menese_send — send tokens (use mode "quote" first, then "execute" after user confirms)
 - menese_swap — DEX swaps (use mode "quote" first, then "execute" after user confirms)
-- menese_stake — Lido staking on EVM chains
-- menese_lend — Aave V3 supply/withdraw on EVM chains
 
 **Automation:**
 - menese_strategy — DCA, Take Profit, Stop Loss rules
@@ -84,8 +80,6 @@ export function buildServer(opts?: BuildServerOptions): McpServer {
   registerQuoteTool(server, store, config);
   registerSendTool(server, store, config);
   registerSwapTool(server, store, config);
-  registerStakeTool(server);
-  registerLendTool(server);
   registerStrategyTool(server, store, config);
   registerJobsTool(server, store);
   registerWalletResources(server, store, config);
